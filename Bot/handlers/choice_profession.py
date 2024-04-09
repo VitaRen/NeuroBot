@@ -10,7 +10,51 @@ router = Router()
 prof_name = ['Разработчик', 'Аналитик', 'Тестировщик']
 prof_grades = ['Junior', 'Middle', 'Senior']
 
-@router.message(Command('/prof'))
-async def cmd_start(message: types.Message):
+
+class ChoiceProfNames(StatesGroup):
+    choice_prof_names = State()
+    choice_prof_grades = State()
+
+
+@router.message(Command('prof'))
+async def cmd_prof(message: types.Message, state: FSMContext):
     name = message.chat.first_name
     await message.answer(f'Привет {name}, выбери профессию', reply_markup=make_row_keyboard(prof_name))
+    await state.set_state(ChoiceProfNames.choice_prof_names)
+
+
+@router.message(ChoiceProfNames.choice_prof_names, F.text.in_(prof_name))
+async def prof_chosen(message: types.Message, state: FSMContext):
+    name = message.chat.first_name
+    await state.update_data(chosen_prof=message.text.lower())
+    await message.answer(
+        'Спасибо, выбери свой уровень',
+        reply_markup=make_row_keyboard(prof_grades)
+    )
+    await state.set_state(ChoiceProfNames.choice_prof_grades)
+
+
+@router.message(ChoiceProfNames.choice_prof_names)
+async def prof_chosen_incorrectly(message: types.Message):
+    await message.answer(
+        'Я не знаю такой профессии',
+        reply_markup=make_row_keyboard(prof_name)
+    )
+
+
+@router.message(ChoiceProfNames.choice_prof_grades, F.text.in_(prof_grades))
+async def grade_chosen(message: types.Message, state: FSMContext):
+    user_data = await state.get_data()
+    await message.answer(
+        f'Вы выбрали {message.text.lower()}, уровень. Ваша профессия {user_data.get("chosen_prof")}',
+        reply_markup=types.ReplyKeyboardRemove()
+    )
+    await state.clear()
+
+
+@router.message(ChoiceProfNames.choice_prof_grades)
+async def grade_chosen_incorrectly(message: types.Message):
+    await message.answer(
+        'Я не знаю такого уровня',
+        reply_markup=make_row_keyboard(prof_grades)
+    )

@@ -1,7 +1,8 @@
 from aiogram import types, F, Router
 from aiogram.filters.command import Command
 import logging
-from Bot.keyboards.keyboards import kb2
+import random
+from Bot.keyboards.keyboards import kb1
 from Bot.utils.RandomFox import fox
 
 router = Router()
@@ -50,6 +51,6 @@ async def cmd_echo(message: types.Message):
     elif "что ты умеешь делать" in msg_user:
         await message.answer("я ничего не умею, я еще не умный")
     elif "лиса" in msg_user:
-        await message.answer(f'смотри что у меня есть, {name}', reply_markup=kb2)
+        await message.answer(f"смотри что у меня есть, {name}", reply_markup=kb2)
     else:
         await message.answer(f'Ты написал - {msg_user}')
