@@ -1,8 +1,8 @@
 from aiogram import types, F, Router
 from aiogram.filters.command import Command
 import logging
-from Bot.Keyboards.Keyboards import kb2
-from Bot.Utils.RandomFox import fox
+from Bot.keyboards.keyboards import kb2
+from Bot.utils.RandomFox import fox
 
 router = Router()
 
